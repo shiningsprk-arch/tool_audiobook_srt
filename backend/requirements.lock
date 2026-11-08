@@ -3,3 +3,6 @@
 #
 # 反斜杠续行在 pip requirements 里不允许，保持单行。
 faster-whisper==1.2.1
+# faster-whisper 1.2.1 仍调用 av.open(..., metadata_errors="ignore")；
+# PyAV 19 删除了该参数（open() got an unexpected keyword argument），故钉在 18.x。
+av==18.1.0

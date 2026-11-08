@@ -23,6 +23,10 @@ DEFAULT_HF_ENDPOINT = "https://hf-mirror.com"
 USER_AGENT = "mybooks-audiobook-srt/0.1"
 REQUIRED_MODEL_FILES = ("config.json", "model.bin", "tokenizer.json")
 VOCAB_FILES = ("vocabulary.txt", "vocabulary.json")
+# faster-whisper 1.2.1 仍调用 av.open(..., metadata_errors="ignore")；
+# PyAV 19 移除了该参数（报 open() got an unexpected keyword argument）。
+AV_MIN_MAJOR = 16
+AV_MAX_MAJOR = 18
 
 MODEL_CATALOG = {
     "tiny": {
@@ -146,12 +150,25 @@ try:
 except Exception as err:
     info.setdefault("error", "ctranslate2: %s" % err)
 try:
+    import av
+    info["packages"]["av"] = getattr(av, "__version__", "?")
+except Exception as err:
+    info.setdefault("error", "av: %s" % err)
+try:
     import onnxruntime
     info["packages"]["onnxruntime"] = getattr(onnxruntime, "__version__", "?")
 except Exception:
     pass
 print(json.dumps(info, ensure_ascii=False))
 """
+
+
+def av_compatible(version):
+    try:
+        major = int(str(version).strip().split(".", 1)[0])
+    except (TypeError, ValueError):
+        return False
+    return AV_MIN_MAJOR <= major <= AV_MAX_MAJOR
 
 
 def probe_env(python_exe, vendor, timeout=90):
@@ -188,6 +205,12 @@ def probe_env(python_exe, vendor, timeout=90):
         data = json.loads(output.splitlines()[-1]) if output else {}
         if result.returncode != 0:
             data["error"] = error or ("退出码 %s" % result.returncode)
+        av_version = (data.get("packages") or {}).get("av")
+        if av_version and not av_compatible(av_version):
+            data["error"] = (
+                "PyAV/av 版本 %s 不兼容：faster-whisper 1.2.1 需要 av 16–18"
+                "（av 19 移除了 metadata_errors）；请重新安装依赖" % av_version
+            )
         data["ok"] = not bool(data.get("error")) and "faster-whisper" in (data.get("packages") or {})
     except (OSError, ValueError, subprocess.SubprocessError, json.JSONDecodeError) as err:
         data = {"ok": False, "error": str(err)}

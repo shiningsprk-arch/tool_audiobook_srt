@@ -312,7 +312,7 @@
     if (!env.ready) {
       dom.envAlert.hidden = false;
       dom.envAlert.className = 'mb-alert mb-alert--warning';
-      dom.envAlert.textContent = i18n.t('alertDepsMissing');
+      dom.envAlert.textContent = i18n.t('alertDepsMissing') + (env.error ? ' — ' + env.error : '');
     } else if (!installed.length) {
       dom.envAlert.hidden = false;
       dom.envAlert.className = 'mb-alert mb-alert--warning';

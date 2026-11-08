@@ -10,19 +10,56 @@
   "entry_frontend": "index.html",
   "page": "audiobook_srt",
   "repo_url": "https://github.com/shiningsprk-arch/tool_audiobook_srt",
-  "locales": ["zh", "en", "zh-TW"],
+  "locales": [
+    "zh",
+    "en",
+    "zh-TW"
+  ],
   "default_locale": "zh",
   "api_routes": [
-    { "path": "overview", "handler": "tool.OverviewHandler" },
-    { "path": "books", "handler": "tool.BooksHandler" },
-    { "path": "book", "handler": "tool.BookHandler" },
-    { "path": "install", "handler": "tool.InstallHandler" },
-    { "path": "model_download", "handler": "tool.ModelDownloadHandler" },
-    { "path": "model_delete", "handler": "tool.ModelDeleteHandler" },
-    { "path": "purge", "handler": "tool.PurgeHandler" },
-    { "path": "start", "handler": "tool.StartHandler" },
-    { "path": "cancel", "handler": "tool.CancelHandler" },
-    { "path": "tasks", "handler": "tool.TasksHandler" },
-    { "path": "config", "handler": "tool.ConfigHandler" }
+    {
+      "path": "overview",
+      "handler": "tool.OverviewHandler"
+    },
+    {
+      "path": "books",
+      "handler": "tool.BooksHandler"
+    },
+    {
+      "path": "book",
+      "handler": "tool.BookHandler"
+    },
+    {
+      "path": "install",
+      "handler": "tool.InstallHandler"
+    },
+    {
+      "path": "model_download",
+      "handler": "tool.ModelDownloadHandler"
+    },
+    {
+      "path": "model_delete",
+      "handler": "tool.ModelDeleteHandler"
+    },
+    {
+      "path": "purge",
+      "handler": "tool.PurgeHandler"
+    },
+    {
+      "path": "start",
+      "handler": "tool.StartHandler"
+    },
+    {
+      "path": "cancel",
+      "handler": "tool.CancelHandler"
+    },
+    {
+      "path": "tasks",
+      "handler": "tool.TasksHandler"
+    },
+    {
+      "path": "config",
+      "handler": "tool.ConfigHandler"
+    }
   ]
 }

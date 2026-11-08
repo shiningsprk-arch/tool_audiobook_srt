@@ -59,6 +59,11 @@ def test_locales_are_complete_enough():
     assert set(manifest["locales"]) == {"zh", "en", "zh-TW"}
 
 
+def test_requirements_pin_compatible_av():
+    lock = open(os.path.join(ROOT, "backend", "requirements.lock"), encoding="utf-8").read()
+    assert "av==18.1.0" in lock
+
+
 def test_source_validation_passes():
     build = _load_build()
     assert build.validate_source() == []

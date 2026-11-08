@@ -123,6 +123,9 @@ https://hf-mirror.com/Systran/faster-whisper-small/resolve/main/vocabulary.txt
 - **模型下载慢/失败**：确认 `https://hf-mirror.com` 可访问；换端点；中断后重试会续传。
 - **ARM CPU 很慢**：`large-v3` 可能慢于实时，先用 `small`；可调低 `cpu_threads` 让网页不卡。
 - **装完依赖还是提示未安装**：看任务日志；镜像 Python 大版本变化后需要重新安装依赖。
+- **报 `open() got an unexpected keyword argument 'metadata_errors'`**：PyAV 19 删除了
+  faster-whisper 1.2.1 仍在使用的参数。工具已把 `av` 钉在 `18.1.0`；重新点「安装依赖」
+  覆盖旧环境即可。
 - **字幕没出现**：确认 `.srt` 与音频同名、同目录；播放页刷新；VIP 配额开启时字幕与音频
   走同一鉴权（文件名保留 `0001_` 序号前缀即可与音频同权）。
 - **下载的音频 zip 没有字幕**：工具在完成一本书后会删缓存 zip；若之前手动下载过，

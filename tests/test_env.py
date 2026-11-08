@@ -108,3 +108,11 @@ def test_purge_runtime_can_keep_models(tmp_path):
     env.purge_runtime(base, deps=True, models=False)
     assert os.listdir(env.deps_root(base)) == []
     assert os.path.isfile(os.path.join(env.models_root(base), "small", "model.bin"))
+
+
+def test_av_compatible_range():
+    assert env.av_compatible("16.0.1")
+    assert env.av_compatible("18.1.0")
+    assert not env.av_compatible("19.0.2")
+    assert not env.av_compatible("15.1.0")
+    assert not env.av_compatible("?")
