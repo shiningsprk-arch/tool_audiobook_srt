@@ -159,6 +159,10 @@ def _job_summary(state):
     }
 
 
+def _book_label(book):
+    return book.get("title") or ("有声书 %s" % book.get("book_id"))
+
+
 def _book_metadata(tool, ids):
     if not ids:
         return {}
@@ -498,9 +502,10 @@ class StartHandler(BaseHandler):
         if not probe.get("ok"):
             return _error("deps.missing", _("运行环境未就绪：%s") % (probe.get("error") or _("请先安装依赖")))
 
+        task_label = _book_label(book)
         task_id = None
         try:
-            task_id = tool.create_task(progress_data={"book_id": book_id, "title": book["title"]})
+            task_id = tool.create_task(progress_data={"book_id": book_id, "title": task_label})
         except Exception as err:  # noqa: BLE001 - 宿主任务面板失败不阻断转写
             logging.warning("[audiobook_srt] 创建宿主后台任务失败: %s", err)
 
@@ -554,7 +559,7 @@ class StartHandler(BaseHandler):
             op = tasks.REGISTRY.start(
                 "transcribe",
                 lambda operation: jobs.run_transcribe(operation, spec, runtime),
-                label="转写字幕 %s" % book["title"],
+                label="转写字幕 %s" % task_label,
                 meta={"book_id": book_id, "title": book["title"], "model": model_name,
                       "task_id": task_id},
             )

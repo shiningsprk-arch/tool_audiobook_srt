@@ -92,7 +92,7 @@ https://hf-mirror.com/Systran/faster-whisper-small/resolve/main/vocabulary.txt
 ## 使用
 
 1. **运行环境**：安装依赖；下载至少一个模型（ARM CPU 日常推荐 `small`）。
-2. **书单**：列出 `audio_output_folder` 下所有有音频的书，显示字幕覆盖率；可只看缺字幕。
+2. **有声书列表**：列出 `audio_output_folder` 下所有有音频的书，显示序号、书名、字幕覆盖率；可只看缺字幕。
 3. **选书**：处理范围三选一——只补缺失 / 全部重转 / 手动勾选；逐文件显示已有字幕与状态。
 4. **参数**（可选）：模型、语言、计算精度、CPU 线程、beam size、初始提示词、是否长文件分片。
    点「保存为默认」持久化到数据卷 `config.json`。

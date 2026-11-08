@@ -18,7 +18,7 @@
   "modelSize": "Size",
   "modelStatus": "Status",
   "modelAction": "Action",
-  "booksTitle": "Books",
+  "booksTitle": "Audiobooks",
   "searchPlaceholder": "Search title / author",
   "onlyMissing": "Missing only",
   "bookTitle": "Title",
@@ -74,7 +74,7 @@
   "missingBadge": "{n} missing",
   "selectBook": "Select",
   "jobFailedCount": "{n} failed",
-  "bookMeta": "{authors} · {audio} audio files · {covered} covered · {size}",
+  "bookMeta": "#{id} · {authors} · {audio} audio files · {covered} covered · {size}",
   "noSubtitle": "No subtitle",
   "hasSubtitle": "Has subtitle",
   "missingSubtitle": "Missing",
@@ -103,5 +103,7 @@
   "purgeBusy": "Removing…",
   "purgeSizes": "Current usage: dependencies {deps} · models {models}",
   "confirmPurge": "Remove dependencies ({deps}) and models ({models})? This cannot be undone. Subtitle files are not affected.",
-  "purged": "Removed, freed {size}"
+  "purged": "Removed, freed {size}",
+  "bookId": "No.",
+  "unknownTitle": "Unknown title"
 }

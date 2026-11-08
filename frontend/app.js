@@ -381,7 +381,7 @@
       if (state.bookId) {
         var found = state.books.filter(function (book) { return book.book_id === state.bookId; })[0];
         if (found) {
-          dom.bookTitle.textContent = found.title;
+          dom.bookTitle.textContent = found.title || i18n.t('unknownTitle');
         }
       }
     });
@@ -406,12 +406,13 @@
   function renderBooks() {
     var books = state.books.filter(bookMatches);
     if (!books.length) {
-      dom.booksBody.innerHTML = '<tr><td colspan="5" class="empty">' + esc(i18n.t('noBooks')) + '</td></tr>';
+      dom.booksBody.innerHTML = '<tr><td colspan="6" class="empty">' + esc(i18n.t('noBooks')) + '</td></tr>';
       return;
     }
     dom.booksBody.innerHTML = books.map(function (book) {
       return '<tr>' +
-        '<td><b>' + esc(book.title) + '</b><div class="hint">' + esc((book.authors || []).join(' / ')) + '</div></td>' +
+        '<td class="muted">' + book.book_id + '</td>' +
+        '<td><b>' + esc(book.title || i18n.t('unknownTitle')) + '</b><div class="hint">' + esc((book.authors || []).join(' / ')) + '</div></td>' +
         '<td>' + book.audio_count + '</td>' +
         '<td>' + book.covered_count + ' / ' + book.audio_count +
         (book.missing_count ? ' <span class="badge badge--warn">' + esc(i18n.t('missingBadge', { n: book.missing_count })) + '</span>' : '') +
@@ -489,8 +490,9 @@
   function renderBook() {
     var book = state.book;
     if (!book) return;
-    dom.bookTitle.textContent = book.title;
+    dom.bookTitle.textContent = book.title || i18n.t('unknownTitle');
     dom.bookMeta.textContent = i18n.t('bookMeta', {
+      id: book.book_id,
       authors: (book.authors || []).join(' / ') || '-',
       audio: book.audio_count,
       covered: book.covered_count,

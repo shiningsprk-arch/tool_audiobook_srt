@@ -137,7 +137,7 @@ def book_entry(root, book_id, title="", authors=None, job_state=None):
         authored = [authored]
     return {
         "book_id": int(book_id),
-        "title": title or ("书籍 %s" % book_id),
+        "title": title or "",
         "authors": [str(author) for author in authored if author],
         "audio_dir": audio_dir,
         "audio_count": len(items),

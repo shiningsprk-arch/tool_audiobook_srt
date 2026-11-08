@@ -83,3 +83,10 @@ def test_delete_cached_audio_zip_only_removes_cache(tmp_path):
     assert not os.path.exists(str(root / "7" / "audio_collection_7.zip"))
     assert os.path.exists(str(root / "7" / "keep.zip"))
     assert scan.delete_cached_audio_zip(str(root), 7) is False
+
+
+def test_missing_metadata_title_is_empty(tmp_path):
+    root = tmp_path / "audios"
+    _write(str(root / "31" / "a.wav"))
+    book = scan.book_entry(str(root), 31)
+    assert book["title"] == ""

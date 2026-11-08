@@ -18,7 +18,7 @@
   "modelSize": "體積",
   "modelStatus": "狀態",
   "modelAction": "操作",
-  "booksTitle": "書單",
+  "booksTitle": "有聲書列表",
   "searchPlaceholder": "搜書名 / 作者",
   "onlyMissing": "只看缺字幕",
   "bookTitle": "書名",
@@ -74,7 +74,7 @@
   "missingBadge": "缺 {n}",
   "selectBook": "選擇",
   "jobFailedCount": "失敗 {n}",
-  "bookMeta": "{authors} · {audio} 個音訊 · 已覆蓋 {covered} · {size}",
+  "bookMeta": "#{id} · {authors} · {audio} 個音訊 · 已覆蓋 {covered} · {size}",
   "noSubtitle": "無字幕",
   "hasSubtitle": "已有字幕",
   "missingSubtitle": "缺字幕",
@@ -103,5 +103,7 @@
   "purgeBusy": "卸載中…",
   "purgeSizes": "目前佔用：依賴 {deps} · 模型 {models}",
   "confirmPurge": "確定卸載？將刪除依賴 {deps} 和模型 {models}，不可復原。字幕檔案不受影響。",
-  "purged": "已卸載，釋放 {size}"
+  "purged": "已卸載，釋放 {size}",
+  "bookId": "序號",
+  "unknownTitle": "未知書名"
 }

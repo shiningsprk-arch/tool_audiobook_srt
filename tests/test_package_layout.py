@@ -49,8 +49,9 @@ def test_locales_are_complete_enough():
         path = os.path.join(ROOT, "frontend", "locales", locale + ".json")
         with open(path, encoding="utf-8") as handle:
             data = json.load(handle)
-        for key in ("title", "intro", "envTitle", "booksTitle", "start",
-                    "statusFailed", "taskKind.transcribe", "error.unknown"):
+        for key in ("title", "intro", "envTitle", "booksTitle", "bookId",
+                    "unknownTitle", "start", "statusFailed",
+                    "taskKind.transcribe", "error.unknown"):
             assert key in data, (locale, key)
     with open(os.path.join(ROOT, "frontend", "locales", "manifest.json"), encoding="utf-8") as handle:
         manifest = json.load(handle)
