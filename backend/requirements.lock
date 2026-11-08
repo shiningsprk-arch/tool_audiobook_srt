@@ -1,0 +1,5 @@
+# 运行时依赖（仅文档性质：由工具的「安装依赖」按钮用
+# `pip install --target <数据卷>/deps/<py-platform>` 安装，不随工具包分发）
+#
+# 反斜杠续行在 pip requirements 里不允许，保持单行。
+faster-whisper==1.2.1

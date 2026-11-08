@@ -1,0 +1,28 @@
+{
+  "tool_id": "audiobook_srt",
+  "name": "有声书字幕",
+  "description": "用 faster-whisper 给书库里的有声书批量生成 SRT 字幕：按书选择、缺字幕补齐、逐文件进度、可取消、可断点续跑；字幕写到音频同目录同名文件，宿主播放器自动识别。依赖与模型装在数据卷里，不进入工具包，也不污染 MyBooks 进程。",
+  "revision": "0.1.0",
+  "author": "黏菌",
+  "publish_date": "2026-11-08",
+  "core_api_version": "1.3.0",
+  "entry_backend": "tool.AudiobookSrtTool",
+  "entry_frontend": "index.html",
+  "page": "audiobook_srt",
+  "repo_url": "https://github.com/shiningsprk-arch/tool_audiobook_srt",
+  "locales": ["zh", "en", "zh-TW"],
+  "default_locale": "zh",
+  "api_routes": [
+    { "path": "overview", "handler": "tool.OverviewHandler" },
+    { "path": "books", "handler": "tool.BooksHandler" },
+    { "path": "book", "handler": "tool.BookHandler" },
+    { "path": "install", "handler": "tool.InstallHandler" },
+    { "path": "model_download", "handler": "tool.ModelDownloadHandler" },
+    { "path": "model_delete", "handler": "tool.ModelDeleteHandler" },
+    { "path": "purge", "handler": "tool.PurgeHandler" },
+    { "path": "start", "handler": "tool.StartHandler" },
+    { "path": "cancel", "handler": "tool.CancelHandler" },
+    { "path": "tasks", "handler": "tool.TasksHandler" },
+    { "path": "config", "handler": "tool.ConfigHandler" }
+  ]
+}

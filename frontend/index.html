@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>audiobook_srt</title>
+  <link rel="stylesheet" href="lib/theme.css" />
+  <style>
+    body { margin: 16px 24px 24px; }
+    h1 { font-size: 1.25em; margin: 0 0 6px; }
+    h2 { font-size: 1.05em; margin: 0 0 10px; }
+    .intro { margin: 0 0 16px; font-size: 0.9em; }
+    .stack { display: flex; flex-direction: column; gap: 18px; }
+    .section-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .muted { color: var(--mb-color-text-secondary); }
+    .hint { margin: 6px 0 0; font-size: 0.82em; color: var(--mb-color-text-secondary); }
+    .kv { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px 16px; margin: 10px 0 0; }
+    .kv > div { border: 1px solid var(--mb-color-border); border-radius: var(--mb-radius); padding: 8px 10px; }
+    .kv b { display: block; font-weight: 500; font-size: 0.85em; margin-top: 2px; word-break: break-all; }
+    .table-wrap { overflow: auto; border: 1px solid var(--mb-color-border); border-radius: var(--mb-radius); margin-top: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+    th, td { padding: 8px 10px; text-align: left; border-bottom: 1px solid var(--mb-color-border); vertical-align: top; }
+    th { background: var(--mb-color-bg); font-weight: 500; white-space: nowrap; }
+    tr:last-child td { border-bottom: none; }
+    .row-btn { padding: 4px 10px; font-size: 0.85em; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .grow { flex: 1; min-width: 160px; }
+    .badge { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 0.78em; border: 1px solid var(--mb-color-border); white-space: nowrap; }
+    .badge--ok { color: var(--mb-color-success); border-color: var(--mb-color-success); }
+    .badge--warn { color: var(--mb-color-warning); border-color: var(--mb-color-warning); }
+    .badge--err { color: var(--mb-color-error); border-color: var(--mb-color-error); }
+    .badge--run { color: var(--mb-color-info); border-color: var(--mb-color-info); }
+    .progress-wrap { margin-top: 12px; }
+    .progress-meta { display: flex; justify-content: space-between; gap: 12px; font-size: 0.85em; color: var(--mb-color-text-secondary); margin-top: 6px; }
+    .log { max-height: 180px; overflow: auto; margin: 10px 0 0; font-size: 0.78em; white-space: pre-wrap; word-break: break-all; }
+    .inline { display: inline-flex; align-items: center; gap: 6px; }
+    .options { margin-top: 14px; }
+    .options > summary { cursor: pointer; font-size: 0.9em; color: var(--mb-color-text-secondary); }
+    .options-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; padding-top: 12px; }
+    .options-grid label { display: block; font-size: 0.85em; margin-bottom: 4px; color: var(--mb-color-text-secondary); }
+    .options-grid input.mb-input, .options-grid select.mb-select { width: 100%; box-sizing: border-box; }
+    .file-check { width: 16px; height: 16px; }
+    .job-error { color: var(--mb-color-error); font-size: 0.82em; }
+    .task-box { border: 1px dashed var(--mb-color-border); border-radius: var(--mb-radius); padding: 10px; margin-top: 12px; }
+    .danger-box { border: 1px solid var(--mb-color-error); border-radius: var(--mb-radius); padding: 12px; margin-top: 16px; }
+    .danger-box h2 { color: var(--mb-color-error); }
+    .empty { padding: 18px; text-align: center; color: var(--mb-color-text-secondary); }
+    a { color: var(--mb-color-primary); }
+    @media (max-width: 700px) {
+      body { margin: 12px; }
+      .kv { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="mb-container stack">
+    <div>
+      <h1 data-i18n="title">有声书字幕</h1>
+      <p class="intro mb-text-secondary" data-i18n="intro"></p>
+      <div id="env-alert" class="mb-alert mb-alert--warning" hidden></div>
+    </div>
+
+    <div class="mb-card">
+      <div class="section-head">
+        <h2 data-i18n="envTitle">运行环境</h2>
+        <div class="actions">
+          <button id="refresh-env" class="mb-btn mb-btn--secondary row-btn" type="button" data-i18n="refresh"></button>
+        </div>
+      </div>
+      <div class="kv">
+        <div><span class="muted" data-i18n="envPython"></span><b id="env-python">-</b></div>
+        <div><span class="muted" data-i18n="envPlatform"></span><b id="env-platform">-</b></div>
+        <div><span class="muted" data-i18n="envDeps"></span><b id="env-deps">-</b></div>
+        <div><span class="muted" data-i18n="envDisk"></span><b id="env-disk">-</b></div>
+      </div>
+      <div class="actions" style="margin-top: 12px">
+        <input id="pip-input" class="mb-input grow" type="text" data-i18n-attr="placeholder:envPipPlaceholder" />
+        <button id="install-btn" class="mb-btn row-btn" type="button" data-i18n="installDeps"></button>
+        <button id="install-cancel" class="mb-btn mb-btn--secondary row-btn" type="button" data-i18n="cancel" hidden></button>
+      </div>
+      <div class="actions" style="margin-top: 8px">
+        <input id="hf-input" class="mb-input grow" type="text" data-i18n-attr="placeholder:envHfPlaceholder" />
+        <button id="save-endpoint" class="mb-btn mb-btn--secondary row-btn" type="button" data-i18n="saveConfig"></button>
+      </div>
+      <p class="hint" data-i18n="envHint"></p>
+
+      <div id="install-task" class="task-box" hidden>
+        <div class="progress-wrap">
+          <div class="mb-progress-linear"><div id="install-bar" class="mb-progress-linear__bar"></div></div>
+          <div class="progress-meta"><span id="install-status"></span><span id="install-pct"></span></div>
+        </div>
+        <pre id="install-log" class="mb-pre log" hidden></pre>
+      </div>
+
+      <div class="section-head" style="margin-top: 20px">
+        <h2 data-i18n="modelsTitle">模型</h2>
+        <span class="muted hint" data-i18n="modelsHint"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="modelName">模型</th>
+              <th data-i18n="modelSize">体积</th>
+              <th data-i18n="modelStatus">状态</th>
+              <th data-i18n="modelAction">操作</th>
+            </tr>
+          </thead>
+          <tbody id="models-body"></tbody>
+        </table>
+      </div>
+
+      <div id="download-task" class="task-box" hidden>
+        <div class="progress-wrap">
+          <div class="mb-progress-linear"><div id="download-bar" class="mb-progress-linear__bar"></div></div>
+          <div class="progress-meta"><span id="download-status"></span><span id="download-pct"></span></div>
+        </div>
+        <button id="download-cancel" class="mb-btn mb-btn--secondary row-btn" type="button" data-i18n="cancel" style="margin-top: 10px"></button>
+      </div>
+
+      <div class="danger-box">
+        <div class="section-head">
+          <h2 data-i18n="purgeTitle">卸载运行环境</h2>
+          <button id="purge-btn" class="mb-btn mb-btn--secondary row-btn" type="button" data-i18n="purgeButton"></button>
+        </div>
+        <p class="hint" data-i18n="purgeHint"></p>
+        <p id="purge-summary" class="hint"></p>
+      </div>
+    </div>
+
+    <div class="mb-card">
+      <div class="section-head">
+        <h2 data-i18n="booksTitle">书单</h2>
+        <div class="actions">
+          <input id="book-search" class="mb-input" type="text" data-i18n-attr="placeholder:searchPlaceholder" />
+          <label class="inline"><input id="only-missing" type="checkbox" /> <span data-i18n="onlyMissing"></span></label>
+          <button id="refresh-books" class="mb-btn mb-btn--secondary row-btn" type="button" data-i18n="refresh"></button>
+        </div>
+      </div>
+      <p class="hint" id="audio-folder"></p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="bookTitle">书名</th>
+              <th data-i18n="bookAudio">音频</th>
+              <th data-i18n="bookSubs">字幕</th>
+              <th data-i18n="bookJob">上次任务</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="books-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="book-card" class="mb-card" hidden>
+      <div class="section-head">
+        <div>
+          <h2 id="book-title">-</h2>
+          <p id="book-meta" class="hint"></p>
+        </div>
+        <div class="actions">
+          <a id="open-player" class="mb-btn mb-btn--secondary row-btn" href="#" target="_blank" rel="noopener" data-i18n="openPlayer"></a>
+        </div>
+      </div>
+
+      <div class="actions" style="margin-top: 12px">
+        <label class="inline"><span class="muted" data-i18n="modeLabel"></span>
+          <select id="mode-select" class="mb-select">
+            <option value="missing" data-i18n="modeMissing"></option>
+            <option value="all" data-i18n="modeAll"></option>
+            <option value="selected" data-i18n="modeSelected"></option>
+          </select>
+        </label>
+        <button id="select-all" class="mb-btn mb-btn--secondary row-btn" type="button" data-i18n="selectAll" hidden></button>
+        <span id="select-count" class="hint"></span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th data-i18n="fileTitle">文件</th>
+              <th data-i18n="fileSize">大小</th>
+              <th data-i18n="fileSub">字幕</th>
+              <th data-i18n="fileStatus">状态</th>
+            </tr>
+          </thead>
+          <tbody id="file-body"></tbody>
+        </table>
+      </div>
+
+      <details class="options" open>
+        <summary data-i18n="optionsTitle"></summary>
+        <div class="options-grid">
+          <div>
+            <label for="model-select" data-i18n="modelName"></label>
+            <select id="model-select" class="mb-select"></select>
+          </div>
+          <div>
+            <label for="language-select" data-i18n="language"></label>
+            <select id="language-select" class="mb-select">
+              <option value="zh">中文</option>
+              <option value="en">English</option>
+              <option value="ja">日本語</option>
+              <option value="auto" data-i18n="languageAuto"></option>
+            </select>
+          </div>
+          <div>
+            <label for="compute-select" data-i18n="computeType"></label>
+            <select id="compute-select" class="mb-select">
+              <option value="int8">int8</option>
+              <option value="int8_float32">int8_float32</option>
+              <option value="float32">float32</option>
+            </select>
+          </div>
+          <div>
+            <label for="threads-input" data-i18n="threads"></label>
+            <input id="threads-input" class="mb-input" type="number" min="1" max="64" step="1" />
+          </div>
+          <div>
+            <label for="beam-input" data-i18n="beam"></label>
+            <input id="beam-input" class="mb-input" type="number" min="1" max="10" step="1" />
+          </div>
+          <div>
+            <label for="prompt-input" data-i18n="prompt"></label>
+            <input id="prompt-input" class="mb-input" type="text" data-i18n-attr="placeholder:promptPlaceholder" />
+          </div>
+        </div>
+        <div class="actions" style="margin-top: 12px">
+          <label class="inline"><input id="chunk-check" type="checkbox" /> <span data-i18n="chunk"></span></label>
+          <button id="save-config" class="mb-btn mb-btn--secondary row-btn" type="button" data-i18n="saveConfig"></button>
+        </div>
+        <p class="hint" data-i18n="optionsHint"></p>
+      </details>
+
+      <div class="actions" style="margin-top: 16px">
+        <button id="start-btn" class="mb-btn" type="button" data-i18n="start"></button>
+        <button id="cancel-btn" class="mb-btn mb-btn--secondary" type="button" data-i18n="cancelTranscribe" hidden></button>
+      </div>
+
+      <div id="job-task" class="task-box" hidden>
+        <div class="progress-wrap">
+          <div class="mb-progress-linear"><div id="job-bar" class="mb-progress-linear__bar"></div></div>
+          <div class="progress-meta"><span id="job-status"></span><span id="job-pct"></span></div>
+        </div>
+        <p id="job-message" class="hint"></p>
+        <p id="job-error" class="job-error" hidden></p>
+        <pre id="job-log" class="mb-pre log" hidden></pre>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="fileTitle">文件</th>
+                <th data-i18n="fileStatus">状态</th>
+                <th data-i18n="fileError">错误</th>
+              </tr>
+            </thead>
+            <tbody id="job-files-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <p class="hint" data-i18n="footerHint"></p>
+  </div>
+
+  <script src="/static/toolbox-bridge.js"></script>
+  <script src="lib/i18n.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
