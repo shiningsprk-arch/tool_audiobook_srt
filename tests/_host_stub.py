@@ -23,6 +23,7 @@ def install():
     handlers_base = _module("webserver.handlers.base")
     toolbox = _module("webserver.toolbox")
     base_tool = _module("webserver.toolbox.base_tool")
+    services = _module("webserver.services")
     i18n = _module("webserver.i18n")
 
     class BaseHandler(object):
@@ -65,6 +66,19 @@ def install():
 
     base_tool.BaseTool = BaseTool
 
+    class AsyncService(object):
+        @staticmethod
+        def register_function(func=None):
+            return func if func is not None else (lambda inner: inner)
+
+        @staticmethod
+        def register_service(service_func=None, *, heavy=True):
+            if service_func is None:
+                return lambda inner: inner
+            return service_func
+
+    services.AsyncService = AsyncService
+
     def _(message):
         return message
 
@@ -72,5 +86,6 @@ def install():
 
     webserver.handlers = handlers
     webserver.toolbox = toolbox
+    webserver.services = services
     handlers.base = handlers_base
     toolbox.base_tool = base_tool

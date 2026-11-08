@@ -20,6 +20,7 @@ import tornado.escape
 
 from webserver.handlers.base import BaseHandler, is_admin, js
 from webserver.i18n import _
+from webserver.services import AsyncService
 from webserver.toolbox.base_tool import BaseTool
 
 from . import env
@@ -46,6 +47,15 @@ class AudiobookSrtTool(BaseTool):
     """有声书 SRT 字幕生成（外置工具）。"""
 
     service_item_name = "有声书字幕"
+
+    @AsyncService.register_function
+    def read_book_metadata(self, ids):
+        """Handler 侧读元数据。
+
+        `self.db` 由 AsyncService 在 register_function 包装里注入；直接
+        `tool.api.calibre.*` 拿到的是 None（宿主外置工具早期踩过的坑）。
+        """
+        return self.api.calibre.get_data_as_dict(ids=list(ids))
 
     @staticmethod
     def info():
@@ -163,26 +173,57 @@ def _book_label(book):
     return book.get("title") or ("有声书 %s" % book.get("book_id"))
 
 
+_META_CACHE = {}
+_META_CACHE_TTL = 60.0
+_META_LOCK = threading.Lock()
+
+
 def _book_metadata(tool, ids):
+    """读书名/作者，短缓存避免列表轮询反复扫全库。"""
     if not ids:
         return {}
+    now = time.time()
+    result = {}
+    missing = []
+    with _META_LOCK:
+        for raw_id in ids:
+            book_id = int(raw_id)
+            cached = _META_CACHE.get(book_id)
+            if cached and now - cached[0] < _META_CACHE_TTL:
+                result[book_id] = cached[1]
+            elif book_id not in missing:
+                missing.append(book_id)
+    if not missing:
+        return result
     try:
-        rows = tool.api.calibre.get_data_as_dict(ids=list(ids))
+        rows = tool.read_book_metadata(missing)
     except Exception as err:  # noqa: BLE001 - 元数据查不到不影响转写
         logging.warning("[audiobook_srt] 读取书籍元数据失败: %s", err)
-        return {}
-    result = {}
+        return result
+    found = set()
     for row in rows or []:
         book_id = row.get("id")
         if book_id is None:
             continue
+        book_id = int(book_id)
+        found.add(book_id)
         authors = row.get("authors") or []
         if isinstance(authors, str):
             authors = [part.strip() for part in authors.split("&") if part.strip()]
-        result[int(book_id)] = {
+        meta = {
             "title": row.get("title") or "",
             "authors": list(authors),
         }
+        result[book_id] = meta
+        with _META_LOCK:
+            _META_CACHE[book_id] = (now, meta)
+    # 不在书库里的 id 也缓存空值，避免每次刷新都用全库扫描去确认
+    for book_id in missing:
+        if book_id not in found:
+            meta = {"title": "", "authors": []}
+            result[book_id] = meta
+            with _META_LOCK:
+                _META_CACHE[book_id] = (now, meta)
     return result
 
 
