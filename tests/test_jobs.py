@@ -54,6 +54,7 @@ def test_resolve_options_clamps_and_parses_bools():
         "vad": "false",
         "overwrite": "true",
         "model": "small",
+        "zh_script": "bogus",
     })
     assert options["cpu_threads"] == 1
     assert options["beam_size"] == 10
@@ -63,6 +64,8 @@ def test_resolve_options_clamps_and_parses_bools():
     assert options["vad"] is False
     assert options["overwrite"] is True
     assert options["model"] == "small"
+    assert options["zh_script"] == "t2s"
+    assert jobs.resolve_options({"zh_script": "s2t"})["zh_script"] == "s2t"
 
 
 def test_job_state_roundtrip_and_normalize(tmp_path):

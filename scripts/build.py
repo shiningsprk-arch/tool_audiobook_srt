@@ -152,6 +152,17 @@ def validate_zip(entries):
     return errors
 
 
+def frontend_build_id(entries):
+    digest = hashlib.sha256()
+    for relative in entries:
+        if not relative.startswith("frontend/"):
+            continue
+        digest.update(relative.encode("utf-8"))
+        with open(os.path.join(REPO_ROOT, relative), "rb") as handle:
+            digest.update(handle.read())
+    return digest.hexdigest()[:12]
+
+
 def build_zip(out_dir, manifest=None):
     manifest = manifest or load_manifest()
     entries = collect_entries()
@@ -163,6 +174,7 @@ def build_zip(out_dir, manifest=None):
     name = "%s-%s.zip" % (manifest["tool_id"], manifest["revision"])
     out_path = os.path.join(out_dir, name)
     date_time = fixed_date_time(manifest)
+    build_id = frontend_build_id(entries)
 
     with zipfile.ZipFile(out_path, "w", zipfile.ZIP_DEFLATED) as archive:
         for relative in entries:
@@ -172,7 +184,10 @@ def build_zip(out_dir, manifest=None):
             info.external_attr = (0o644 & 0xFFFF) << 16
             info.create_system = 3
             with open(full, "rb") as handle:
-                archive.writestr(info, handle.read())
+                data = handle.read()
+            if relative.startswith("frontend/"):
+                data = data.replace(b"__BUILD_ID__", build_id.encode("ascii"))
+            archive.writestr(info, data)
     digest = hashlib.sha256(open(out_path, "rb").read()).hexdigest()
     return out_path, digest, entries
 

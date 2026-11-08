@@ -29,6 +29,21 @@ def emit(payload):
     sys.stdout.flush()
 
 
+def _convert_cues(cues, mode):
+    if mode not in ("t2s", "s2t"):
+        return cues
+    try:
+        import opencc
+        converter = opencc.OpenCC(mode)
+    except Exception as err:  # noqa: BLE001 - 转换失败不应丢字幕
+        emit({"type": "log", "message": "OpenCC 不可用，保留原始字形：%s" % err})
+        return cues
+    return [
+        SRT.Cue(cue.start, cue.end, converter.convert(cue.text))
+        for cue in cues
+    ]
+
+
 def build_parser():
     parser = argparse.ArgumentParser(description="audiobook_srt worker")
     parser.add_argument("--audio", required=True)
@@ -36,6 +51,8 @@ def build_parser():
     parser.add_argument("--model", required=True)
     parser.add_argument("--vendor", default="")
     parser.add_argument("--language", default="zh")
+    parser.add_argument("--zh-script", default="t2s",
+                        choices=("off", "t2s", "s2t"))
     parser.add_argument("--compute-type", default="int8")
     parser.add_argument("--cpu-threads", type=int, default=2)
     parser.add_argument("--beam-size", type=int, default=5)
@@ -118,6 +135,8 @@ def main(argv=None):
                     "percent": (min(100.0, end * 100.0 / duration) if duration else 0.0),
                 })
 
+        if (getattr(info, "language", "") or args.language) == "zh":
+            cues = _convert_cues(cues, args.zh_script)
         content = SRT.build_srt(cues)
         if not content.strip():
             emit({"type": "error", "code": "empty",

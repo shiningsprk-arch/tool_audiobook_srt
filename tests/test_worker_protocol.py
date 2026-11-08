@@ -62,7 +62,8 @@ class WhisperModel(object):
     cmd = [
         sys.executable, "-u", os.path.join(ROOT, "backend", "worker.py"),
         "--audio", audio, "--out", out, "--model", model,
-        "--vendor", vendor, "--language", "zh", "--compute-type", "int8",
+        "--vendor", vendor, "--language", "zh", "--zh-script", "off",
+        "--compute-type", "int8",
         "--cpu-threads", "2", "--vad", "1",
     ]
     result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -76,3 +77,59 @@ class WhisperModel(object):
     assert os.path.isfile(out)
     cues = SRT.parse_srt(open(out, encoding="utf-8").read())
     assert [cue.text for cue in cues] == ["第一句。", "第二句。"]
+
+
+def test_worker_converts_traditional_to_simplified(tmp_path):
+    vendor = str(tmp_path / "vendor")
+    _write(os.path.join(vendor, "faster_whisper", "__init__.py"), """
+class _Info(object):
+    duration = 2.0
+    language = "zh"
+    language_probability = 0.99
+
+class _Segment(object):
+    def __init__(self, start, end, text):
+        self.start = start
+        self.end = end
+        self.text = text
+        self.no_speech_prob = 0.1
+        self.avg_logprob = -0.2
+
+class WhisperModel(object):
+    def __init__(self, model, device="cpu", compute_type="int8", cpu_threads=2):
+        pass
+
+    def transcribe(self, audio, **kwargs):
+        return iter([_Segment(0.0, 1.5, "這是繁體。")]), _Info()
+""".encode("utf-8"))
+    _write(os.path.join(vendor, "opencc.py"), """
+class _Converter(object):
+    def __init__(self, mode):
+        self.mode = mode
+
+    def convert(self, text):
+        if self.mode == "t2s":
+            return text.replace("這", "这").replace("體", "体")
+        return text
+
+
+def OpenCC(mode):
+    return _Converter(mode)
+""".encode("utf-8"))
+    model = str(tmp_path / "model")
+    for name in ("config.json", "model.bin", "tokenizer.json", "vocabulary.txt"):
+        _write(os.path.join(model, name), b"x")
+    audio = str(tmp_path / "a.wav")
+    _write(audio, b"fake")
+    out = str(tmp_path / "a.srt")
+    cmd = [
+        sys.executable, "-u", os.path.join(ROOT, "backend", "worker.py"),
+        "--audio", audio, "--out", out, "--model", model,
+        "--vendor", vendor, "--language", "zh", "--zh-script", "t2s",
+        "--compute-type", "int8", "--cpu-threads", "2", "--vad", "1",
+    ]
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                            timeout=60)
+    assert result.returncode == 0, result.stderr.decode("utf-8", "replace")
+    cues = SRT.parse_srt(open(out, encoding="utf-8").read())
+    assert [cue.text for cue in cues] == ["这是繁体。"]

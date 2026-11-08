@@ -105,5 +105,10 @@
   "confirmPurge": "Remove dependencies ({deps}) and models ({models})? This cannot be undone. Subtitle files are not affected.",
   "purged": "Removed, freed {size}",
   "bookId": "No.",
-  "unknownTitle": "Unknown title"
+  "unknownTitle": "Unknown title",
+  "zhScript": "Chinese script",
+  "zhScriptT2S": "Traditional → Simplified (recommended)",
+  "zhScriptOff": "Do not convert",
+  "zhScriptS2T": "Simplified → Traditional",
+  "zhScriptHint": "Chinese only. Whisper often outputs Traditional Chinese; OpenCC converts to Simplified by default."
 }

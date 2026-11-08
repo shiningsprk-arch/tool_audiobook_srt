@@ -21,6 +21,7 @@ JOB_VERSION = 1
 DEFAULT_OPTIONS = {
     "model": "small",
     "language": "zh",
+    "zh_script": "t2s",
     "compute_type": "int8",
     "cpu_threads": min(4, max(1, (os.cpu_count() or 2) - 1)),
     "beam_size": 5,
@@ -205,6 +206,7 @@ def run_worker(op, runtime, audio_path, out_path, offset, on_processed):
         "--model", runtime["model_dir"],
         "--vendor", runtime["vendor"],
         "--language", str(options.get("language") or "zh"),
+        "--zh-script", str(options.get("zh_script") or "t2s"),
         "--compute-type", str(options.get("compute_type") or "int8"),
         "--cpu-threads", str(max(1, int(options.get("cpu_threads") or 2))),
         "--beam-size", str(max(1, int(options.get("beam_size") or 5))),
@@ -593,6 +595,9 @@ def resolve_options(raw):
         options["model"] = str(raw["model"]).strip()
     if "language" in raw:
         options["language"] = str(raw["language"]).strip() or "zh"
+    if "zh_script" in raw:
+        value = str(raw["zh_script"]).strip().lower()
+        options["zh_script"] = value if value in ("off", "t2s", "s2t") else "t2s"
     if "compute_type" in raw:
         options["compute_type"] = str(raw["compute_type"]).strip() or "int8"
     for key in ("cpu_threads", "beam_size", "chunk_seconds", "max_chars"):

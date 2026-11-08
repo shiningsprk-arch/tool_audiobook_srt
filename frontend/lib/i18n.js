@@ -19,7 +19,9 @@
   function createI18n(options) {
     options = options || {};
     var localesDir = options.localesDir || 'locales/';
-    var manifestUrl = localesDir + 'manifest.json';
+    var buildId = window.__MYBOOKS_TOOL_BUILD_ID__ || '';
+    var cacheSuffix = buildId ? '?v=' + encodeURIComponent(buildId) : '';
+    var manifestUrl = localesDir + 'manifest.json' + cacheSuffix;
 
     var cache = {}; // locale -> 字串表
     var listeners = [];
@@ -35,7 +37,7 @@
 
     function loadCatalog(locale) {
       if (cache[locale]) return Promise.resolve(cache[locale]);
-      return loadJson(localesDir + locale + '.json')
+      return loadJson(localesDir + locale + '.json' + cacheSuffix)
         .then(function (dict) {
           cache[locale] = dict;
           return dict;

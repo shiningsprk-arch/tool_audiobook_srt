@@ -57,6 +57,7 @@
     fileBody: el('file-body'),
     modelSelect: el('model-select'),
     languageSelect: el('language-select'),
+    zhScriptSelect: el('zh-script-select'),
     computeSelect: el('compute-select'),
     threadsInput: el('threads-input'),
     beamInput: el('beam-input'),
@@ -450,6 +451,7 @@
     populateModelSelect();
     if (config.model) dom.modelSelect.value = config.model;
     dom.languageSelect.value = config.language || 'zh';
+    dom.zhScriptSelect.value = config.zh_script || 't2s';
     dom.computeSelect.value = config.compute_type || 'int8';
     dom.threadsInput.value = config.cpu_threads || 2;
     dom.beamInput.value = config.beam_size || 5;
@@ -665,6 +667,7 @@
     return {
       model: dom.modelSelect.value,
       language: dom.languageSelect.value,
+      zh_script: dom.zhScriptSelect.value,
       compute_type: dom.computeSelect.value,
       cpu_threads: parseInt(dom.threadsInput.value, 10) || 2,
       beam_size: parseInt(dom.beamInput.value, 10) || 5,

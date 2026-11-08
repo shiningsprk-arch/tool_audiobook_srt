@@ -9,6 +9,7 @@
 | PyAV（av） | 音频解码（wheel 内自带 FFmpeg 库） | BSD-3-Clause |
 | onnxruntime | Silero VAD | MIT |
 | tokenizers | 分词 | Apache-2.0 |
+| OpenCC | 繁简转换（宿主机系统包，非工具包分发） | Apache-2.0 |
 | Whisper 模型权重（Systran/faster-whisper-*） | 语音识别模型 | MIT（以模型卡为准） |
 
 `frontend/lib/theme.css` 与 `frontend/lib/i18n.js` 来自 MyBooks Toolbox 前端脚手架

@@ -105,5 +105,10 @@
   "confirmPurge": "確定卸載？將刪除依賴 {deps} 和模型 {models}，不可復原。字幕檔案不受影響。",
   "purged": "已卸載，釋放 {size}",
   "bookId": "序號",
-  "unknownTitle": "未知書名"
+  "unknownTitle": "未知書名",
+  "zhScript": "中文字形",
+  "zhScriptT2S": "繁→簡（推薦）",
+  "zhScriptOff": "不轉換",
+  "zhScriptS2T": "簡→繁",
+  "zhScriptHint": "只對中文生效；Whisper 的中文輸出常偏繁體，預設用 OpenCC 轉簡體。"
 }
